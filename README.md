@@ -6,12 +6,12 @@ Acceso a la base de datos de finanzas personales (Postgres/Neon, proyecto
 - **Runtime/servidor:** .NET 10 (LTS, soporte hasta 2028-11-14).
 - **Proveedor:** `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3.
 - **Modelo:** generado por *scaffold* (DB-first) desde el esquema real, no escrito a mano.
-- **Esquema:** todo vive en el esquema Postgres `finanzas` (`HasDefaultSchema`), no en
-  `public`. El historial de EF (`__EFMigrationsHistory`) también va ahí: se configura en
-  `FinanzasDbContextFactory`, que es el punto de entrada de las herramientas de diseño.
-- **Historial de migraciones:** EF Core (`__EFMigrationsHistory`). La tabla
-  `schema_migrations` (3 filas heredadas del SQLite original) se replica como tabla normal
-  dentro de `finanzas` y se trata como histórico legado: **no se toca** desde EF.
+- **Esquema:** las 8 tablas de negocio viven en el esquema Postgres `finanzas`
+  (`HasDefaultSchema`), no en `public`. Las dos tablas de infraestructura se quedan en
+  `public`: `__EFMigrationsHistory` (historial de EF) y `schema_migrations`.
+- **Historial de migraciones:** EF Core (`__EFMigrationsHistory`, en `public`). La tabla
+  `schema_migrations` (3 filas heredadas del SQLite original) se replica en `public` como
+  histórico legado y **no se toca** desde EF.
 
 
 ## Estructura
@@ -65,15 +65,23 @@ dotnet test
 ## Base local desde cero
 
 El repo genera el esquema completo; no hace falta dump. `InitialCreate` crea el esquema
-`finanzas`, las 9 tablas, los 9 CHECKs, las 9 FKs (`ON DELETE RESTRICT`) y los índices
-(incluidos los de FK que la base de Neon no tenía).
+`finanzas` con las 8 tablas de negocio, los 6 CHECKs, las 9 FKs (`ON DELETE RESTRICT`) y
+los índices (incluidos los de FK que la base de Neon no tenía), más `schema_migrations` en
+`public`.
+
+La cadena de conexión se resuelve en este orden: `DATABASE_URL`,
+`CONNECTION_STRING_POSTGRES_HERMES`, y si no, esas mismas claves en `/opt/data/.env`.
+Acepta URI (`postgresql://...`) o palabras clave de ADO.NET; la URI se convierte en la
+factoría porque la clave puede llevar `@` sin escapar.
+
 
 ```bash
-# 1) Base de datos vacía (el esquema lo crea la migración)
-createdb finanzas
+# 1) El esquema lo crea la migración; la base de datos tiene que existir antes.
+#    En este entorno es la base `hermes` del Postgres del compose (usuario `hermes`,
+#    sin privilegio CREATEDB, pero sí puede crear esquemas en su propia base).
 
-# 2) Cadena de conexión local, fuera de git
-export DATABASE_URL="Host=localhost;Port=5432;Database=finanzas;Username=<usuario>;Password=<clave>"
+# 2) Cadena de conexión, fuera de git (DATABASE_URL o CONNECTION_STRING_POSTGRES_HERMES)
+export DATABASE_URL="Host=postgres;Port=5432;Database=hermes;Username=<usuario>;Password=<clave>"
 
 # 3) Aplicar
 dotnet ef database update --project src/BaseDatosHermes --startup-project src/BaseDatosHermes

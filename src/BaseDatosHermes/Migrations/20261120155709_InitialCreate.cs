@@ -14,6 +14,9 @@ namespace BaseDatosHermes.Migrations
             migrationBuilder.EnsureSchema(
                 name: "finanzas");
 
+            migrationBuilder.EnsureSchema(
+                name: "public");
+
             migrationBuilder.CreateTable(
                 name: "cambios_financieros",
                 schema: "finanzas",
@@ -48,7 +51,7 @@ namespace BaseDatosHermes.Migrations
 
             migrationBuilder.CreateTable(
                 name: "schema_migrations",
-                schema: "finanzas",
+                schema: "public",
                 columns: table => new
                 {
                     version = table.Column<int>(type: "integer", nullable: false),
@@ -349,7 +352,7 @@ namespace BaseDatosHermes.Migrations
 
             migrationBuilder.DropTable(
                 name: "schema_migrations",
-                schema: "finanzas");
+                schema: "public");
 
             migrationBuilder.DropTable(
                 name: "movimientos",

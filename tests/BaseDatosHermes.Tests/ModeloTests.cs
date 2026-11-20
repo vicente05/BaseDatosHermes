@@ -44,18 +44,22 @@ public class ModeloTests
     }
 
     [Fact]
-    public void Todas_las_tablas_viven_en_el_esquema_finanzas()
+    public void Las_tablas_de_negocio_viven_en_finanzas_y_la_infraestructura_en_public()
     {
         using var ctx = NuevoContexto();
 
         Assert.Equal("finanzas", ctx.Model.GetDefaultSchema());
 
-        var fuera = ctx.Model.GetEntityTypes()
-            .Where(e => !string.Equals(e.GetSchema(), "finanzas", StringComparison.Ordinal))
-            .Select(e => e.GetTableName()!)
-            .ToArray();
+        var porTabla = ctx.Model.GetEntityTypes()
+            .ToDictionary(e => e.GetTableName()!, e => e.GetSchema());
 
-        Assert.Empty(fuera);
+        // El historial legado del migrador no es contabilidad: se queda en public.
+        Assert.Equal("public", porTabla["schema_migrations"]);
+        Assert.Equal(9, porTabla.Count);
+
+        var negocio = porTabla.Where(p => p.Key != "schema_migrations").ToArray();
+        Assert.Equal(8, negocio.Length);
+        Assert.All(negocio, p => Assert.Equal("finanzas", p.Value));
     }
 
     [Fact]

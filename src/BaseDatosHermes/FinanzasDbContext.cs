@@ -27,7 +27,8 @@ public class FinanzasDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Esquema propio para la contabilidad doméstica: nada de mezclarse con
-        // `public`. Todas las tablas y el historial de migraciones viven aquí.
+        // `public`. Solo las tablas de negocio viven aquí; las de infraestructura
+        // (`schema_migrations`, `__EFMigrationsHistory`) se quedan en `public`.
         modelBuilder.HasDefaultSchema("finanzas");
 
         modelBuilder.Entity<TipoMovimiento>(e =>
@@ -197,7 +198,9 @@ public class FinanzasDbContext : DbContext
 
         modelBuilder.Entity<SchemaMigration>(e =>
         {
-            e.ToTable("schema_migrations");
+            // Historial legado del SQLite original: es infraestructura, va con las
+            // migraciones en `public`, no en el esquema de negocio.
+            e.ToTable("schema_migrations", "public");
             e.HasKey(x => x.Version);
             e.Property(x => x.Version).HasColumnName("version").ValueGeneratedNever();
             e.Property(x => x.Name).HasColumnName("name").IsRequired();

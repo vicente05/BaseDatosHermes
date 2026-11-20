@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BaseDatosHermes.Migrations
 {
     [DbContext(typeof(FinanzasDbContext))]
-    [Migration("20261120151155_InitialCreate")]
+    [Migration("20261120155709_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -394,7 +394,7 @@ namespace BaseDatosHermes.Migrations
 
                     b.HasKey("Version");
 
-                    b.ToTable("schema_migrations", "finanzas");
+                    b.ToTable("schema_migrations", "public");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.TipoMovimiento", b =>

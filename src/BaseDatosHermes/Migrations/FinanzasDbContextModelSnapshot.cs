@@ -391,7 +391,7 @@ namespace BaseDatosHermes.Migrations
 
                     b.HasKey("Version");
 
-                    b.ToTable("schema_migrations", "finanzas");
+                    b.ToTable("schema_migrations", "public");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.TipoMovimiento", b =>
