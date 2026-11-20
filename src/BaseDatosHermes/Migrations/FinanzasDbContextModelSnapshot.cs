@@ -17,6 +17,7 @@ namespace BaseDatosHermes.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("finanzas")
                 .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -50,7 +51,7 @@ namespace BaseDatosHermes.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("cambios_financieros", (string)null);
+                    b.ToTable("cambios_financieros", "finanzas");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.CategoriaGasto", b =>
@@ -76,7 +77,7 @@ namespace BaseDatosHermes.Migrations
 
                     b.HasIndex("TipoId");
 
-                    b.ToTable("categorias_gasto", (string)null);
+                    b.ToTable("categorias_gasto", "finanzas");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.Instrumento", b =>
@@ -102,7 +103,7 @@ namespace BaseDatosHermes.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("instrumentos", null, t =>
+                    b.ToTable("instrumentos", "finanzas", t =>
                         {
                             t.HasCheckConstraint("instrumentos_moneda_check", "moneda = 'EUR'");
                         });
@@ -231,7 +232,7 @@ namespace BaseDatosHermes.Migrations
 
                     b.HasIndex("TipoId");
 
-                    b.ToTable("movimientos", null, t =>
+                    b.ToTable("movimientos", "finanzas", t =>
                         {
                             t.HasCheckConstraint("movimientos_check", "liquidacion_tarjeta_id IS NULL OR liquidacion_tarjeta_id <> id");
 
@@ -274,7 +275,7 @@ namespace BaseDatosHermes.Migrations
                     b.HasIndex("Origen", "Identificador")
                         .IsUnique();
 
-                    b.ToTable("referencias_origen", (string)null);
+                    b.ToTable("referencias_origen", "finanzas");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.ReferenciaSaldo", b =>
@@ -310,7 +311,7 @@ namespace BaseDatosHermes.Migrations
                     b.HasIndex("Origen", "Identificador")
                         .IsUnique();
 
-                    b.ToTable("referencias_saldos", (string)null);
+                    b.ToTable("referencias_saldos", "finanzas");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.Saldo", b =>
@@ -360,7 +361,7 @@ namespace BaseDatosHermes.Migrations
                     b.HasIndex("InstrumentoId")
                         .HasDatabaseName("idx_saldos_instrumento");
 
-                    b.ToTable("saldos", null, t =>
+                    b.ToTable("saldos", "finanzas", t =>
                         {
                             t.HasCheckConstraint("saldos_estado_check", "estado IN ('pendiente', 'confirmado')");
 
@@ -390,7 +391,7 @@ namespace BaseDatosHermes.Migrations
 
                     b.HasKey("Version");
 
-                    b.ToTable("schema_migrations", (string)null);
+                    b.ToTable("schema_migrations", "finanzas");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.TipoMovimiento", b =>
@@ -409,7 +410,7 @@ namespace BaseDatosHermes.Migrations
                     b.HasIndex("Codigo")
                         .IsUnique();
 
-                    b.ToTable("tipos_movimiento", (string)null);
+                    b.ToTable("tipos_movimiento", "finanzas");
                 });
 
             modelBuilder.Entity("BaseDatosHermes.Entities.CategoriaGasto", b =>

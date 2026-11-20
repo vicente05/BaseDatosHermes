@@ -18,7 +18,8 @@ public sealed class FinanzasDbContextFactory : IDesignTimeDbContextFactory<Finan
     {
         var connectionString = ResolverCadenaDeConexion();
         var options = new DbContextOptionsBuilder<FinanzasDbContext>()
-            .UseNpgsql(connectionString)
+            .UseNpgsql(connectionString, npgsql =>
+                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", "finanzas"))
             .Options;
         return new FinanzasDbContext(options);
     }

@@ -6,9 +6,13 @@ Acceso a la base de datos de finanzas personales (Postgres/Neon, proyecto
 - **Runtime/servidor:** .NET 10 (LTS, soporte hasta 2028-11-14).
 - **Proveedor:** `Npgsql.EntityFrameworkCore.PostgreSQL` 10.0.3.
 - **Modelo:** generado por *scaffold* (DB-first) desde el esquema real, no escrito a mano.
-- **Historial de migraciones:** EF Core (`__EFMigrationsHistory`) a partir de ahora.
-  La tabla `schema_migrations` (3 filas heredadas del SQLite original) se queda en la
-  base como histórico legado y **no se toca**.
+- **Esquema:** todo vive en el esquema Postgres `finanzas` (`HasDefaultSchema`), no en
+  `public`. El historial de EF (`__EFMigrationsHistory`) también va ahí: se configura en
+  `FinanzasDbContextFactory`, que es el punto de entrada de las herramientas de diseño.
+- **Historial de migraciones:** EF Core (`__EFMigrationsHistory`). La tabla
+  `schema_migrations` (3 filas heredadas del SQLite original) se replica como tabla normal
+  dentro de `finanzas` y se trata como histórico legado: **no se toca** desde EF.
+
 
 ## Estructura
 
@@ -58,7 +62,37 @@ dotnet ef database update --project src/BaseDatosHermes --startup-project src/Ba
 dotnet test
 ```
 
+## Base local desde cero
+
+El repo genera el esquema completo; no hace falta dump. `InitialCreate` crea el esquema
+`finanzas`, las 9 tablas, los 9 CHECKs, las 9 FKs (`ON DELETE RESTRICT`) y los índices
+(incluidos los de FK que la base de Neon no tenía).
+
+```bash
+# 1) Base de datos vacía (el esquema lo crea la migración)
+createdb finanzas
+
+# 2) Cadena de conexión local, fuera de git
+export DATABASE_URL="Host=localhost;Port=5432;Database=finanzas;Username=<usuario>;Password=<clave>"
+
+# 3) Aplicar
+dotnet ef database update --project src/BaseDatosHermes --startup-project src/BaseDatosHermes
+```
+
+Notas de fidelidad con respecto a Neon:
+
+- Los *nombres* de PK, índices únicos y FKs los pone EF (`PK_movimientos`,
+  `IX_movimientos_id_origen`, `FK_movimientos_tipos_movimiento_tipo_id`) y no los de Neon
+  (`movimientos_pkey`, `movimientos_id_origen_key`, `movimientos_tipo_id_fkey`). Misma
+  semántica, distinto nombre.
+- `tipos_movimiento.id` es `IDENTITY` en Neon pero el modelo lo mapea como
+  `ValueGeneratedNever`, así que en local es `integer` normal. Los ids se asignan a mano,
+  como en el resto de tablas.
+- EF añade índices a `categorias_gasto.tipo_id`, `movimientos.tipo_id` y
+  `movimientos.liquidacion_tarjeta_id`; Neon no los tenía.
+
 ## Reglas del dominio
+
 
 - Los importes son **enteros en céntimos**, nunca decimales.
 - Las PK son `integer` **sin** identity/sequence: al insertar hay que asignar el `id`.

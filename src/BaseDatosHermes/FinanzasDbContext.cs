@@ -26,6 +26,10 @@ public class FinanzasDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Esquema propio para la contabilidad doméstica: nada de mezclarse con
+        // `public`. Todas las tablas y el historial de migraciones viven aquí.
+        modelBuilder.HasDefaultSchema("finanzas");
+
         modelBuilder.Entity<TipoMovimiento>(e =>
         {
             e.ToTable("tipos_movimiento");

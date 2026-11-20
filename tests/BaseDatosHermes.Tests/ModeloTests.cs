@@ -44,6 +44,21 @@ public class ModeloTests
     }
 
     [Fact]
+    public void Todas_las_tablas_viven_en_el_esquema_finanzas()
+    {
+        using var ctx = NuevoContexto();
+
+        Assert.Equal("finanzas", ctx.Model.GetDefaultSchema());
+
+        var fuera = ctx.Model.GetEntityTypes()
+            .Where(e => !string.Equals(e.GetSchema(), "finanzas", StringComparison.Ordinal))
+            .Select(e => e.GetTableName()!)
+            .ToArray();
+
+        Assert.Empty(fuera);
+    }
+
+    [Fact]
     public void Ninguna_clave_primaria_es_autogenerada()
     {
         using var ctx = NuevoContexto();
