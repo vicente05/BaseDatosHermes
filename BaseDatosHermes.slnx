@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BaseDatosHermes/BaseDatosHermes.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BaseDatosHermes.Tests/BaseDatosHermes.Tests.csproj" />
+  </Folder>
+</Solution>
